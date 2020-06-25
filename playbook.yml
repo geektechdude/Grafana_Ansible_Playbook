@@ -4,11 +4,11 @@
 
   tasks:
 
-- hosts: pi_client
+- hosts: pi_clients
   roles:
     - grafana
 
-- hosts: pi_client
+- hosts: pi_clients
   roles:
     - prometheus
     - node_exporter
