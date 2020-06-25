@@ -2,5 +2,5 @@
 Ansible Playbook with roles to install:
  - Grafana
  - Prometheus
- - Node Explorer
+ - Node Exporter
 On Raspberry Pi (Raspberry Pi OS). Can be amended to work with other flavours of Linux.
