@@ -1,0 +1,61 @@
+
+- name: Download Node exporter
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-armv7.tar.gz
+    dest: /tmp
+    checksum: sha256:e7f4427a25f1870103588e4968c7dc8c1426c00a0c029d0183a9a7afdd61357b
+
+- name: Create Node exporter folder in opt
+  become: yes
+  file:
+    path: /usr/bin/nodeexporter
+    state: directory
+    mode: '0777'
+
+- name: Extract Node exporter
+  become: yes
+  unarchive:
+     src: /tmp/node_exporter-1.0.1.linux-armv7.tar.gz
+     dest: /usr/bin/nodeexporter
+     remote_src: yes
+
+- name: Create Node exporter Service File
+  become: yes
+  file:
+      path: /etc/systemd/system/nodeexporter.service
+      state: touch
+
+- name: Edit Node exporter Service File
+  become: yes
+  blockinfile:
+      path: /etc/systemd/system/nodeexporter.service
+      marker: ""
+      block: |
+        [Unit]
+        Description=Node Exporter
+        Documentation=https://prometheus.io/
+        After=network-online.target
+
+        [Service]
+        User=pi
+        Restart=on-failure
+
+        [Service]
+        User=pi
+        ExecStart=/usr/bin/nodeexporter/node_exporter-1.0.1.linux-armv7/node_exporter
+
+        [Install]
+        WantedBy=multi-user.target
+
+- name: systemd reload
+  become: yes
+  systemd:
+    daemon_reload: yes
+
+- name: Start Node exporter service
+  become: yes
+  service:
+    name: nodeexporter
+    enabled: yes
+    state: started
+

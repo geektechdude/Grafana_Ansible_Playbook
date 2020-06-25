@@ -1,0 +1,30 @@
+---
+- name: Download Grafana
+  get_url:
+    url: https://dl.grafana.com/oss/release/grafana_7.0.4_armhf.deb
+    dest: /tmp
+    checksum: sha256:3efdbf596dbccba883ca58272f9d81fcbdc5990163fd75a8c358b20a802c8111
+
+- name: Install adduser (Grafana pre-req)
+  become: yes
+  apt:
+    name: adduser
+    state: present
+
+- name: Install libfontconfig1 (Grafana pre-req)
+  become: yes
+  apt:
+    name: libfontconfig1
+    state: present
+
+- name: Install Grafana
+  become: yes
+  apt:
+    deb: /tmp/grafana_7.0.4_armhf.deb
+
+- name: Enable Grafana Service
+  become: yes
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes

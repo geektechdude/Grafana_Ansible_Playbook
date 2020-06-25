@@ -1,0 +1,68 @@
+
+- name: Download Prometheus
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v2.19.1/prometheus-2.19.1.linux-armv7.tar.gz
+    dest: /tmp
+    checksum: sha256:6e0777b03d3fd2cba8ce0be6adf75154e21062c886cc788d91591b4ea72d3cc3
+
+- name: Create Prometheus folder in opt
+  become: yes
+  file:
+    path: /usr/bin/prometheus
+    state: directory
+    mode: '0777'
+
+- name: Extract Prometheus
+  become: yes
+  unarchive:
+     src: /tmp/prometheus-2.19.1.linux-armv7.tar.gz
+     dest: /usr/bin/prometheus
+     remote_src: yes
+
+- name: Create Prometheus Service File
+  become: yes
+  file:
+      path: /etc/systemd/system/prometheus.service
+      state: touch
+
+- name: Create Prometheus data folder in opt
+  become: yes
+  file:
+    path: /usr/bin/prometheus/prometheus-2.19.1.linux-armv7/data
+    state: directory
+    mode: '0777'
+
+- name: Edit Prometheus Service File
+  become: yes
+  blockinfile:
+      path: /etc/systemd/system/prometheus.service
+      marker: ""
+      block: |
+        [Unit]
+        Description=Prometheus Server
+        Documentation=https://prometheus.io/docs/introduction/overview/
+        After=network-online.target
+
+        [Service]
+        User=pi
+        Restart=on-failure
+
+        ExecStart=/usr/bin/prometheus/prometheus-2.19.1.linux-armv7/prometheus \
+        --config.file=/usr/bin/prometheus/prometheus-2.19.1.linux-armv7/prometheus.yml \
+        --storage.tsdb.path=/usr/bin/prometheus/prometheus-2.19.1.linux-armv7/data
+
+        [Install]
+        WantedBy=multi-user.target
+
+- name: systemd reload
+  become: yes
+  systemd:
+    daemon_reload: yes
+
+- name: Start Prometheus service
+  become: yes
+  service:
+    name: prometheus
+    enabled: yes
+    state: started
+
