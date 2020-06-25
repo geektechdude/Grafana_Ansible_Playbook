@@ -1,0 +1,20 @@
+---
+- hosts: all
+  gather_facts: yes
+
+  tasks:
+
+- hosts: pi_client
+  roles:
+    - grafana
+
+- hosts: pi_client
+  roles:
+    - prometheus
+    - node_exporter
+
+- hosts: pi_master
+  roles:
+    - node_exporter
+
+ 
